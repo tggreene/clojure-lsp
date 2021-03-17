@@ -114,3 +114,9 @@
         (loc-at-pos (inc line) (inc character)))
     (catch Exception _
       (log/warn "It was not possible to get cursor location at given position. Probably a not valid clojure code"))))
+
+(defn parent-form [text row col]
+  (when-let [zloc (loc-at-pos text row col)]
+    (if (#{:list :vector :map} (z/tag zloc))
+      zloc
+      (z/up zloc))))

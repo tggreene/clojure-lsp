@@ -204,11 +204,9 @@
 (defn range-formatting [doc-id format-pos]
   (let [{:keys [text]} (get-in @db/db [:documents doc-id])
         cljfmt-settings (get-in @db/db [:settings :cljfmt])
-        forms (parser/find-top-forms-in-range text format-pos)]
-    (mapv (fn [form-loc]
-            {:range (shared/->range (-> form-loc z/node meta))
-             :new-text (n/string (cljfmt/reformat-form (z/node form-loc) cljfmt-settings))})
-          forms)))
+        form-loc (parser/parent-form text (:row format-pos) (:col format-pos))]
+    [{:range    (shared/->range (-> form-loc z/node meta))
+      :new-text (n/string (cljfmt/reformat-form (z/node form-loc) cljfmt-settings))}]))
 
 (defmulti extension (fn [method _] method))
 
