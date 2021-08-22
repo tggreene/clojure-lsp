@@ -5,6 +5,7 @@
    [clojure-lsp.parser :as parser]
    [clojure-lsp.queries :as q]
    [clojure-lsp.refactor.transform :as r.transform]
+   [clojure-lsp.refactor.transform.coll :as r.transform.coll]
    [clojure-lsp.shared :as shared]
    [clojure.string :as string]
    [taoensso.timbre :as log])
@@ -279,7 +280,7 @@
         inside-function? (r.transform/find-function-form zloc)
         function-to-create (find-function-to-create uri diagnostics db)
         inside-let? (r.transform/find-let-form zloc)
-        other-colls (r.transform/find-other-colls zloc)
+        other-colls (r.transform.coll/find-other-colls zloc)
         definition (q/find-definition-from-cursor (:analysis @db) (shared/uri->filename uri) row col)
         inline-symbol? (r.transform/inline-symbol? definition db)
         can-thread? (r.transform/can-thread? zloc)
