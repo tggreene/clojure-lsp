@@ -39,7 +39,8 @@
                                   :jvm-opts ["-Xmx2g" "-server"]
                                   :main-class clojure-lsp.main
                                   :aliases [:native]}}
-           :native {:jvm-opts ["-Xmx2g"
+           :native {:extra-deps {com.github.clj-easy/graal-build-time {:mvn/version "0.0.20"}}
+                    :jvm-opts ["-Xmx2g"
                                "-server"
                                "-Dborkdude.dynaload.aot=true"
                                "-Dclojure.compiler.direct-linking=true"
