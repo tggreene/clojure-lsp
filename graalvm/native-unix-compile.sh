@@ -9,8 +9,8 @@ fi
 
 if [[ ! -f "$CLOJURE_LSP_JAR" ]]
 then
-    make classes
-    make prod-jar-for-native
+    # make classes
+    # make prod-jar-for-native
     CLOJURE_LSP_JAR=$(ls clojure-lsp.jar)
 fi
 
@@ -30,6 +30,11 @@ CLOJURE_LSP_STATIC=${CLOJURE_LSP_STATIC:-}
 
 if [ "$CLOJURE_LSP_STATIC" = "true" ]; then
     args+=("--static")
+    if [ "$CLOJURE_LSP_MUSL" = "true" ]; then
+        args+=("--libc=musl"
+               # see https://github.com/oracle/graal/issues/3398
+               "-H:CCompilerOption=-Wl,-z,stack-size=2097152")
+    fi
 fi
 
 "$GRAALVM_HOME/bin/native-image" "${args[@]}"

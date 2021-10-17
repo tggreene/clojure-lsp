@@ -2,8 +2,8 @@ name: CI
 
 on:
   push:
-    branches:
-      - master
+    # branches:
+    #   - master
     paths-ignore:
       - '**/README.md'
       - '**/CHANGELOG.md'
@@ -16,77 +16,77 @@ on:
   pull_request:
 
 jobs:
-  lint:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v1
+  # lint:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v1
 
-      - name: Install Clojure
-        uses: DeLaGuardo/setup-clojure@master
-        with:
-          cli: '1.10.3.814'
+  #     - name: Install Clojure
+  #       uses: DeLaGuardo/setup-clojure@master
+  #       with:
+  #         cli: '1.10.3.814'
 
-      - name: Compile java classes
-        run: make classes
+  #     - name: Compile java classes
+  #       run: make classes
 
-      - name: Check if namespaces are clean
-        run: make lint-clean
+  #     - name: Check if namespaces are clean
+  #       run: make lint-clean
 
-      - name: Check if namespaces are formatted
-        run: make lint-format
+  #     - name: Check if namespaces are formatted
+  #       run: make lint-format
 
-      - name: Check if namespaces have no diagnostics
-        run: make lint-diagnostics
+  #     - name: Check if namespaces have no diagnostics
+  #       run: make lint-diagnostics
 
-  unit-test:
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        jdk: [8, 11, 15]
-    steps:
-      - uses: actions/checkout@v1
+  # unit-test:
+  #   runs-on: ubuntu-latest
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       jdk: [8, 11, 15]
+  #   steps:
+  #     - uses: actions/checkout@v1
 
-      - name: Set up JDK ${{ matrix.jdk }}
-        uses: actions/setup-java@v1
-        with:
-          java-version: ${{ matrix.jdk }}
+  #     - name: Set up JDK ${{ matrix.jdk }}
+  #       uses: actions/setup-java@v1
+  #       with:
+  #         java-version: ${{ matrix.jdk }}
 
-      - name: Install Clojure
-        uses: DeLaGuardo/setup-clojure@master
-        with:
-          cli: '1.10.3.814'
+  #     - name: Install Clojure
+  #       uses: DeLaGuardo/setup-clojure@master
+  #       with:
+  #         cli: '1.10.3.814'
 
-      - name: Run tests
-        run: make test
+  #     - name: Run tests
+  #       run: make test
 
-  jvm-integration-test:
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        jdk: [8, 11, 15]
-    steps:
-      - uses: actions/checkout@v1
+  # jvm-integration-test:
+  #   runs-on: ubuntu-latest
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       jdk: [8, 11, 15]
+  #   steps:
+  #     - uses: actions/checkout@v1
 
-      - name: Set up JDK ${{ matrix.jdk }}
-        uses: actions/setup-java@v1
-        with:
-          java-version: ${{ matrix.jdk }}
+  #     - name: Set up JDK ${{ matrix.jdk }}
+  #       uses: actions/setup-java@v1
+  #       with:
+  #         java-version: ${{ matrix.jdk }}
 
-      - name: Install Clojure
-        uses: DeLaGuardo/setup-clojure@master
-        with:
-          cli: '1.10.3.814'
+  #     - name: Install Clojure
+  #       uses: DeLaGuardo/setup-clojure@master
+  #       with:
+  #         cli: '1.10.3.814'
 
-      - name: Install Babashka
-        run: curl -s https://raw.githubusercontent.com/borkdude/babashka/master/install | sudo bash
+  #     - name: Install Babashka
+  #       run: curl -s https://raw.githubusercontent.com/borkdude/babashka/master/install | sudo bash
 
-      - name: Generate embedded binary
-        run: make prod-bin
+  #     - name: Generate embedded binary
+  #       run: make prod-bin
 
-      - name: Run integration tests
-        run: make integration-test
+  #     - name: Run integration tests
+  #       run: make integration-test
 
   graalvm-build:
     runs-on: ubuntu-latest
@@ -120,11 +120,22 @@ jobs:
         run: |
           gu install native-image
 
+      - name: Setup Musl
+        run: |
+          export CLOJURE_LSP_STATIC=true
+          export CLOJURE_LSP_MUSL=true
+          sudo apt-get update
+          sudo apt-get -y install gcc g++ zlib1g-dev
+
+          sudo -E graalvm/setup-musl.sh
+
       - name: Build Linux native image
         env:
           CLOJURE_LSP_JAR: clojure-lsp.jar
           CLOJURE_LSP_XMX: "-J-Xmx6g"
         run: |
+          export CLOJURE_LSP_STATIC=true
+          export CLOJURE_LSP_MUSL=true
           graalvm/native-unix-compile.sh
 
       - name: Compress binary
