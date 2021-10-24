@@ -15,59 +15,60 @@
    [taoensso.timbre :as log])
   (:import
    (clojure_lsp
-     ClojureExtensions
-     ExtraMethods
-     CursorInfoParams)
+    ClojureExtensions
+    ExtraMethods
+    CursorInfoParams
+    ClojuredocsParams)
    (java.util.concurrent CompletableFuture)
    (java.util.function Supplier)
    (org.eclipse.lsp4j
-     CallHierarchyIncomingCallsParams
-     CallHierarchyOutgoingCallsParams
-     CallHierarchyPrepareParams
-     CodeActionParams
-     CodeAction
-     CodeActionOptions
-     CodeLens
-     CodeLensParams
-     CodeLensOptions
-     CompletionItem
-     CompletionOptions
-     CompletionParams
-     DefinitionParams
-     DidChangeConfigurationParams
-     DidChangeTextDocumentParams
-     DidChangeWatchedFilesParams
-     DidChangeWatchedFilesRegistrationOptions
-     DidCloseTextDocumentParams
-     DidOpenTextDocumentParams
-     DidSaveTextDocumentParams
-     DocumentFormattingParams
-     DocumentHighlightParams
-     DocumentRangeFormattingParams
-     DocumentSymbolParams
-     ExecuteCommandOptions
-     ExecuteCommandParams
-     FileSystemWatcher
-     HoverParams
-     InitializeParams
-     InitializeResult
-     InitializedParams
-     LinkedEditingRangeParams
-     ReferenceParams
-     Registration
-     RegistrationParams
-     RenameParams
-     SaveOptions
-     SemanticTokensLegend
-     SemanticTokensParams
-     SemanticTokensRangeParams
-     SemanticTokensWithRegistrationOptions
-     ServerCapabilities
-     SignatureHelpOptions
-     SignatureHelpParams
-     TextDocumentSyncKind
-     TextDocumentSyncOptions
-     WorkspaceSymbolParams)
+    CallHierarchyIncomingCallsParams
+    CallHierarchyOutgoingCallsParams
+    CallHierarchyPrepareParams
+    CodeActionParams
+    CodeAction
+    CodeActionOptions
+    CodeLens
+    CodeLensParams
+    CodeLensOptions
+    CompletionItem
+    CompletionOptions
+    CompletionParams
+    DefinitionParams
+    DidChangeConfigurationParams
+    DidChangeTextDocumentParams
+    DidChangeWatchedFilesParams
+    DidChangeWatchedFilesRegistrationOptions
+    DidCloseTextDocumentParams
+    DidOpenTextDocumentParams
+    DidSaveTextDocumentParams
+    DocumentFormattingParams
+    DocumentHighlightParams
+    DocumentRangeFormattingParams
+    DocumentSymbolParams
+    ExecuteCommandOptions
+    ExecuteCommandParams
+    FileSystemWatcher
+    HoverParams
+    InitializeParams
+    InitializeResult
+    InitializedParams
+    LinkedEditingRangeParams
+    ReferenceParams
+    Registration
+    RegistrationParams
+    RenameParams
+    SaveOptions
+    SemanticTokensLegend
+    SemanticTokensParams
+    SemanticTokensRangeParams
+    SemanticTokensWithRegistrationOptions
+    ServerCapabilities
+    SignatureHelpOptions
+    SignatureHelpParams
+    TextDocumentSyncKind
+    TextDocumentSyncOptions
+    WorkspaceSymbolParams)
    (org.eclipse.lsp4j.launch LSPLauncher)
    (org.eclipse.lsp4j.services LanguageServer TextDocumentService WorkspaceService LanguageClient))
   (:gen-class))
@@ -375,6 +376,11 @@
              (future
                (sync-notification params handlers/cursor-info-log))))
 
+    (^CompletableFuture clojureDocsRaw [^ClojuredocsParams params]
+     (CompletableFuture/completedFuture
+      (->> (handlers/clojuredocs-raw)
+           (interop/conform-or-log ::interop/clojuredocs-raw))))
+    
     (^CompletableFuture shutdown []
       (log/info "Shutting down")
       (reset! db/db {:documents {}})
