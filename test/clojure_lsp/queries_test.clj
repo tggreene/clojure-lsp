@@ -92,6 +92,10 @@
          [d-foo-kw-r d-foo-kw-c]] (h/load-code-and-locs (h/code "|:foo-kw"
                                                                 "(let [{:keys [|foo-kw]} {|:foo-kw 1}]"
                                                                 "  foo-kw)") (h/file-uri "file:///c.clj"))
+        [[a-bar-kw-r a-bar-kw-c]
+         [b-bar-kw-r b-bar-kw-c]] (h/load-code-and-locs
+                                    (h/code "(let [{:keys [|foo/bar]} {|:foo/bar 1}]"
+                                            "  bar)") (h/file-uri "file:///d.clj"))
         ana (:analysis @db/db)]
     (h/assert-submaps
       [{:name 'x :name-row x-r :name-col x-c}
@@ -113,7 +117,11 @@
        {:name "foo-kw" :name-row b-foo-kw-r :name-col b-foo-kw-c}
        {:name "foo-kw" :name-row d-foo-kw-r :name-col d-foo-kw-c}
        {:name "foo-kw" :name-row c-foo-kw-r :name-col c-foo-kw-c}]
-      (q/find-references-from-cursor ana (h/file-path "/c.clj") b-foo-kw-r b-foo-kw-c true db/db))))
+      (q/find-references-from-cursor ana (h/file-path "/c.clj") b-foo-kw-r b-foo-kw-c true db/db))
+    (h/assert-submaps
+      [{:name "bar" :name-row 1 :name-col 26 :bucket :keywords}
+       {:name "bar" :name-row 1 :name-col 15 :bucket :keywords}]
+      (q/find-references-from-cursor ana (h/file-path "/d.clj") b-bar-kw-r b-bar-kw-c true db/db))))
 
 (deftest find-references-from-cursor-cljc
   (let [code (str "(ns a.b.c (:require [d.e.f :as |f-alias]))\n"

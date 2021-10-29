@@ -12,7 +12,12 @@
          a-binding-start a-binding-stop
          a-local-usage-start a-local-usage-stop] (h/load-code-and-locs
                                                    "|:a| (let [{:keys [:|a|]} {}] |a|)"
-                                                   (h/file-uri "file:///a.cljc"))]
+                                                   (h/file-uri "file:///a.cljc"))
+        [b-start b-stop
+         b-binding-start b-binding-stop
+         b-local-usage-start b-local-usage-stop] (h/load-code-and-locs
+                                                   "|:a/b| (let [{:keys [|:a/b|]} {}] |b|)"
+                                                   (h/file-uri "file:///b.cljc"))]
     (testing "should not rename plain keywords"
       (let [[row col] a-start
             result (f.rename/rename (h/file-uri "file:///a.cljc") ":b" row col db/db)]
@@ -20,11 +25,19 @@
                         :message "Can't rename, only namespaced keywords can be renamed."}}
                result))))
 
-    (testing "should rename local in destructure not keywords"
+    (testing "should rename local in destructure but not keywords"
       (let [[row col] a-binding-start
             changes (:changes (f.rename/rename (h/file-uri "file:///a.cljc") ":b" row col db/db))]
-        (is (= {(h/file-uri "file:///a.cljc") [{:new-text "b" :range (h/->range a-binding-start a-binding-stop)}
-                                               {:new-text "b" :range (h/->range a-local-usage-start a-local-usage-stop)}]}
+        (is (= {(h/file-uri "file:///a.cljc")
+                [{:new-text "b" :range (h/->range a-binding-start a-binding-stop)}
+                 {:new-text "b" :range (h/->range a-local-usage-start a-local-usage-stop)}]}
+               changes))))
+    (testing "should rename local in destructure with ':' and keywords if namespaced"
+      (let [[row col] b-start
+            changes (:changes (f.rename/rename (h/file-uri "file:///b.cljc") ":a/c" row col db/db))]
+        (is (= {(h/file-uri "file:///b.cljc")
+                [{:new-text ":a/c" :range (h/->range b-start b-stop)}
+                 {:new-text ":a/c" :range (h/->range b-binding-start b-binding-stop)}]}
                changes))))))
 
 (deftest rename-keywords-corner-cases

@@ -217,7 +217,7 @@
               (filter #(identical? :keywords (:bucket %)))
               (filter #(safe-equal? name (:name %)))
               (filter #(safe-equal? ns (:ns %)))
-              (filter #(not (:keys-destructuring %)))
+              ;; (filter #(not (:keys-destructuring %)))
               (filter #(or include-declaration?
                            (not (:reg %))))
               (medley/distinct-by (juxt :filename :name :row :col)))
